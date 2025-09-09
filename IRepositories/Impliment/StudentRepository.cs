@@ -13,6 +13,7 @@ namespace Repositories.Impliment
 {
     public class StudentRepository : IStudentRepository
     {
+        
         private readonly ISession _session;
         public StudentRepository(ISession session)
         {
@@ -77,6 +78,7 @@ namespace Repositories.Impliment
 
         Task<int> IStudentRepository.AddAsync(Student student)
         {
+
             var tx = _session.BeginTransaction();
             _session.Save(student);
             tx.Commit();

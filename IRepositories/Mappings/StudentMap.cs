@@ -13,12 +13,16 @@ namespace Repositories.Mappings
         public StudentMap()
         {
             Table("Students");
-            Id(x => x.Id).GeneratedBy.Identity();
+            Id(x => x.Id).GeneratedBy.Sequence("hibernate_sequence");
             Map(x => x.StudentCode).Not.Nullable().Length(20).Unique();
             Map(x => x.Name).Not.Nullable().Length(100);
             Map(x => x.Dob).Not.Nullable();
             Map(x => x.Address).Not.Nullable().Length(200);
-            References(x => x.ClassRoom).Column("ClassRoomId").Not.Nullable().Cascade.None();
-        }   
+            References(x => x.ClassRoom)
+    .Column("ClassRoomId")
+    .Not.Nullable()
+    .Cascade.None();
+
+        }
     }
 }

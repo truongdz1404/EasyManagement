@@ -66,11 +66,11 @@ else
                     <td>@student.ClassRoomName</td>
                     <td>
                         <button type="button" class="btn btn-primary btn-sm" @onclick="() => OpenDialogForEdit(student)">
-                            <i class="bi bi-pencil"></i>
+                            <i class="bi bi-pencil">Update</i>
                         </button>
 
                         <button type="button" class="btn btn-danger btn-sm ms-1" @onclick="() => DeleteStudent(student.Id)">
-                            <i class="bi bi-trash"></i>
+                            <i class="bi bi-trash">Delete</i>
                         </button>
                     </td>
                 </tr>
@@ -148,7 +148,7 @@ else
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Class</label>
-                        <select class="form-select" @bind="currentStudent.ClassRoomId" required>
+                        <select class="form-select" @bind="SelectedClassRoomId" required>
                             <option value="0">-- Select Class --</option>
                             @foreach (var classroom in classrooms)
                             {
@@ -204,7 +204,15 @@ else
             errorMessage = $"Failed to initialize: {ex.Message}";
         }
     }
-
+    private int SelectedClassRoomId
+    {
+        get => currentStudent.ClassRoomId;
+        set
+        {
+            currentStudent.ClassRoomId = value;
+            Console.WriteLine($"ClassRoomId set to: {value}"); // Debug
+        }
+    }
     private async Task LoadData(int page)
     {
         try
@@ -297,10 +305,10 @@ else
     {
         errorMessage = "";
         currentStudent = new StudentDto
-            {
-                Dob = DateTime.Today,
-                ClassRoomId = classrooms.FirstOrDefault()?.Id ?? 0
-            };
+        {
+            Dob = DateTime.Today,
+            ClassRoomId = 0 // Đặt default, user sẽ chọn
+        };
         showDialog = true;
         StateHasChanged();
     }

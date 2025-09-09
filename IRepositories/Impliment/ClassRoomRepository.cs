@@ -1,16 +1,12 @@
 ﻿using EasyMN.Shared.Entities;
 using Repositories.IRepositories;
-using Microsoft.EntityFrameworkCore;
 using NHibernate;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using EasyMN.Shared.Models;
 
 namespace Repositories.Impliment
-
 {
     public class ClassRoomRepository : IClassRepository
     {
@@ -19,30 +15,73 @@ namespace Repositories.Impliment
         {
             _session = session;
         }
-        public Task<int> AddAsync(ClassRoom classRoom)
+
+        // Thêm mới
+        public async Task<int> AddAsync(ClassRoom classRoom)
         {
-            throw new NotImplementedException();
+            using var transaction = _session.BeginTransaction();
+            try
+            {
+                var id = (int)await _session.SaveAsync(classRoom);
+                await transaction.CommitAsync();
+                return id;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
-        public Task<bool> DeleteAsync(ClassRoom classRoom)
+        public async Task<bool> UpdateAsync(ClassRoom classRoom)
         {
-            throw new NotImplementedException();
+            using var transaction = _session.BeginTransaction();
+            try
+            {
+                await _session.UpdateAsync(classRoom);
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
+        // Xóa
+        public async Task<bool> DeleteAsync(ClassRoom classRoom)
+        {
+            using var transaction = _session.BeginTransaction();
+            try
+            {
+                await _session.DeleteAsync(classRoom);
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        // Lấy tất cả
         public async Task<IEnumerable<ClassRoom>> GetAllAsyncs()
         {
-           return await _session.Query<ClassRoom>().ToListAsync();
+            var result = _session.Query<ClassRoom>();
+            return await Task.FromResult(result.ToList());
         }
 
+        // Lấy tất cả có phân trang
         public Task<PagedResult<ClassRoom>> GetAllAsyncs(int pageNumber = 1, int pageSize = 10)
         {
             var query = _session.Query<ClassRoom>();
 
-
             var totalRecords = query.Count();
             var classRooms = query.Skip((pageNumber - 1) * pageSize)
-                                .Take(pageSize)
-                                .ToList();
+                                  .Take(pageSize)
+                                  .ToList();
 
             var pagedResult = new PagedResult<ClassRoom>
             {
@@ -55,19 +94,17 @@ namespace Repositories.Impliment
             return Task.FromResult(pagedResult);
         }
 
-        public Task<ClassRoom?> GetByCodeAsync(string code)
-        {
-            throw new NotImplementedException();
-        }
-
+        // Lấy theo Id
         public Task<ClassRoom?> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return _session.GetAsync<ClassRoom>(id);
         }
 
-        public Task<bool> UpdateAsync(ClassRoom classRoom)
+        // Lấy theo Code
+        public async Task<ClassRoom?> GetByCodeAsync(string code)
         {
-            throw new NotImplementedException();
+            return await Task.FromResult(_session.Query<ClassRoom>()
+                                            .FirstOrDefault(c => c.ClassCode == code));
         }
     }
 }

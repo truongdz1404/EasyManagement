@@ -13,7 +13,6 @@ namespace EasyMN.Shared.Entities
         public virtual string Name { get; set; } = string.Empty;
         public virtual DateTime Dob { get; set; }
         public virtual string Address { get; set; } = string.Empty;
-        public virtual int ClassRoomId { get; set; }
-        public virtual ClassRoom ClassRoom { get; set; } = null!;
+        public virtual ClassRoom? ClassRoom { get; set; }
     }
 }

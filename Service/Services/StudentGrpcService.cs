@@ -10,10 +10,12 @@ namespace Service.Services
     public class StudentGrpcService : IStudentGrpcService
     {
         private readonly IStudentRepository _studentRepository;
+        private readonly IClassRepository _classRepository;
 
-        public StudentGrpcService(IStudentRepository studentRepository)
+        public StudentGrpcService(IStudentRepository studentRepository, IClassRepository classRepository)
         {
             _studentRepository = studentRepository;
+            _classRepository = classRepository;
         }
 
         public async Task<ResponseWrapper<PagedResult<StudentDto>>> GetAllStudentsAsync(PagedRequest request)
@@ -27,7 +29,6 @@ namespace Service.Services
                     StudentCode = s.StudentCode,
                     Name = s.Name,
                     Dob = s.Dob,
-                    ClassRoomId = s.ClassRoomId,
                     Address = s.Address,
                     ClassRoomName = s.ClassRoom?.ClassName ?? string.Empty
                 }).ToList(),
@@ -59,12 +60,24 @@ namespace Service.Services
         {
             try
             {
+                Console.WriteLine($"=== Service Received Request ===");
+                Console.WriteLine($"request != null: {request != null}");
+                Console.WriteLine($"request.ClassRoomId: {request?.ClassRoomId}");
+                Console.WriteLine($"request.StudentCode: '{request?.StudentCode}'");
+                Console.WriteLine($"request.Name: '{request?.Name}'");
+
                 // Validate input
                 if (string.IsNullOrWhiteSpace(request.StudentCode))
                     return new ResponseWrapper<int>("Student code is required", 0);
 
                 if (string.IsNullOrWhiteSpace(request.Name))
                     return new ResponseWrapper<int>("Student name is required", 0);
+
+                if (request.ClassRoomId <= 0)
+                {
+                    Console.WriteLine($"ClassRoomId validation failed: {request.ClassRoomId}");
+                    return new ResponseWrapper<int>("Please select a valid classroom", 0);
+                }
 
                 // Check if student code already exists
                 var existingStudent = await _studentRepository.GetByCodeAsync(request.StudentCode);
@@ -77,14 +90,17 @@ namespace Service.Services
                     Name = request.Name,
                     Dob = request.Dob,
                     Address = request.Address,
-                    ClassRoomId = request.ClassRoomId
+                    ClassRoom = _classRepository.GetByIdAsync(request.ClassRoomId).Result
                 };
+
+                Console.WriteLine($"=== Before Repository Call ===");
 
                 var id = await _studentRepository.AddAsync(student);
                 return new ResponseWrapper<int>("Created successfully", id);
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Service Exception: {ex}");
                 return new ResponseWrapper<int>($"Error: {ex.Message}", 0);
             }
         }
@@ -104,7 +120,6 @@ namespace Service.Services
                 student.Name = request.Name;
                 student.Dob = request.Dob;
                 student.Address = request.Address;
-                student.ClassRoomId = request.ClassRoomId;
 
                 var success = await _studentRepository.UpdateAsync(student);
                 return new ResponseWrapper<bool>(success ? "Updated successfully" : "Update failed", success);
@@ -138,7 +153,6 @@ namespace Service.Services
                 Name = s.Name,
                 Dob = s.Dob,
                 Address = s.Address,
-                ClassRoomId = s.ClassRoomId,
                 ClassRoomName = s.ClassRoom?.ClassName ?? string.Empty
             };
         }
