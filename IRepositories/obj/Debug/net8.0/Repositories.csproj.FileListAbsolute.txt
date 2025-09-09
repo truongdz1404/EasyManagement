@@ -1,0 +1,15 @@
+D:\SoftDreams\EasyMN\IRepositories\bin\Debug\net8.0\Repositories.deps.json
+D:\SoftDreams\EasyMN\IRepositories\bin\Debug\net8.0\Repositories.dll
+D:\SoftDreams\EasyMN\IRepositories\bin\Debug\net8.0\Repositories.pdb
+D:\SoftDreams\EasyMN\IRepositories\bin\Debug\net8.0\Shared.dll
+D:\SoftDreams\EasyMN\IRepositories\bin\Debug\net8.0\Shared.pdb
+D:\SoftDreams\EasyMN\IRepositories\obj\Debug\net8.0\Repositories.csproj.AssemblyReference.cache
+D:\SoftDreams\EasyMN\IRepositories\obj\Debug\net8.0\Repositories.GeneratedMSBuildEditorConfig.editorconfig
+D:\SoftDreams\EasyMN\IRepositories\obj\Debug\net8.0\Repositories.AssemblyInfoInputs.cache
+D:\SoftDreams\EasyMN\IRepositories\obj\Debug\net8.0\Repositories.AssemblyInfo.cs
+D:\SoftDreams\EasyMN\IRepositories\obj\Debug\net8.0\Repositories.csproj.CoreCompileInputs.cache
+D:\SoftDreams\EasyMN\IRepositories\obj\Debug\net8.0\Reposito.787EC4B2.Up2Date
+D:\SoftDreams\EasyMN\IRepositories\obj\Debug\net8.0\Repositories.dll
+D:\SoftDreams\EasyMN\IRepositories\obj\Debug\net8.0\refint\Repositories.dll
+D:\SoftDreams\EasyMN\IRepositories\obj\Debug\net8.0\Repositories.pdb
+D:\SoftDreams\EasyMN\IRepositories\obj\Debug\net8.0\ref\Repositories.dll
