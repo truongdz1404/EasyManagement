@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace Shared.Dtos.Report
+namespace EasyMN.Shared.Dtos.Report
 {
     [DataContract]
     public class ClassStatsDto

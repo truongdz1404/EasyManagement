@@ -1,11 +1,9 @@
 using EasyMN.Shared.Dtos;
 using Microsoft.Extensions.Logging;
 using Repositories.IRepositories;
-using Shared.Dtos;
-using Shared.Dtos.Report;
-using Shared.IServices;
+using EasyMN.Shared.Dtos.Report;
+using EasyMN.Shared.IServices;
 using System.Linq;
-
 namespace Service.Services
 {
     public class ReportGrpcService : IReportGrpcService
@@ -53,21 +51,21 @@ namespace Service.Services
             }
         }
 
-        public async Task<ResponseWrapper<ClassStatsDto>> GetClassStatsAsync(int classId)
+        public async Task<ResponseWrapper<ClassStatsDto>> GetClassStatsAsync(ClassStatsRequest classStass)
         {
             try
             {
-                var classRoom = await _classRepository.GetByIdAsync(classId);
+                var classRoom = await _classRepository.GetByIdAsync(classStass.ClassId);
                 if (classRoom == null)
                 {
                     return new ResponseWrapper<ClassStatsDto>("Class not found", null);
                 }
 
-                var totalStudents = await _studentRepository.CountByClassAsync(classId);
+                var totalStudents = await _studentRepository.CountByClassAsync(classStass.ClassId);
 
                 var stats = new ClassStatsDto
                 {
-                    ClassId = classId,
+                    ClassId = classStass.ClassId,
                     ClassName = classRoom.ClassName,
                     TotalStudents = totalStudents
                 };
@@ -76,8 +74,8 @@ namespace Service.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting class stats for class {ClassId}", classId);
-                return new ResponseWrapper<ClassStatsDto>($"Error getting class stats for class {classId}", null);
+                _logger.LogError(ex, "Error getting class stats for class {ClassId}", classStass);
+                return new ResponseWrapper<ClassStatsDto>($"Error getting class stats for class {classStass}", null);
             }
         }
     }

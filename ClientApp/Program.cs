@@ -1,4 +1,3 @@
-using ClientApp.Data;
 using Grpc.Net.Client.Web;
 using Grpc.Net.Client;
 using Microsoft.AspNetCore.Components;
@@ -11,7 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddAntDesign();
 
 var httpHandler = new GrpcWebHandler(GrpcWebMode.GrpcWeb, new HttpClientHandler());
@@ -31,6 +29,11 @@ builder.Services.AddScoped<IClassGrpcService>(sp =>
 {
     var channel = sp.GetRequiredService<GrpcChannel>();
     return channel.CreateGrpcService<IClassGrpcService>();
+});
+builder.Services.AddScoped<IReportGrpcService>(sp =>
+{
+    var channel = sp.GetRequiredService<GrpcChannel>();
+    return channel.CreateGrpcService<IReportGrpcService>();
 });
 var app = builder.Build();
 

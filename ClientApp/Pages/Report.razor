@@ -1,0 +1,83 @@
+@page "/reports"
+@using AntDesign.Charts
+@using AntDesign
+@using EasyMN.Shared.Dtos
+@using EasyMN.Shared.Dtos.Report
+@inject EasyMN.Shared.IServices.IReportGrpcService ReportGrpcService
+@inject EasyMN.Shared.IServices.IClassGrpcService ClassGrpcService
+
+<PageTitle>Dashboard</PageTitle>
+@if (stats != null)
+{
+    <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <Card>
+
+                    <Body>
+                        <div class="text-center">
+                            <h3>Total Teachers</h3>
+                            <h2>@(stats?.TotalTeachers ?? 0)</h2>
+                        </div>
+                    </Body>
+                </Card>
+            </div>
+            <div class="col-md-4">
+                <Card>
+
+                    <Body>
+                        <div class="text-center">
+                            <h3>Total Classes</h3>
+                            <h2>@(stats?.TotalClasses ?? 0)</h2>
+                        </div>
+                    </Body>
+                </Card>
+            </div>
+            <div class="col-md-4">
+                <Card>
+
+                    <Body>
+                        <div class="text-center">
+                            <h3>Total Students</h3>
+                            <h2>@(stats?.TotalStudents ?? 0)</h2>
+                        </div>
+                    </Body>
+                </Card>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <Card Title="Student Distribution">
+                    @if (classStats != null && classStats.Any())
+                    {
+                        <Pie Data="pieChartData" Config="pieConfig" />
+                    }
+                    else
+                    {
+                        <Spin />
+                    }
+                </Card>
+            </div>
+            <div class="col-md-6">
+                <Card Title="Students per Class">
+                    @if (classStats != null && classStats.Any())
+                    {
+                        <AntDesign.Charts.Column Data="columnChartData" Config="columnConfig" />
+                    }
+                    else
+                    {
+                        <Spin />
+                    }
+                </Card>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-center align-items-center" style="height:100vh">
+        <Spin Size="large" />
+    </div>
+}
+

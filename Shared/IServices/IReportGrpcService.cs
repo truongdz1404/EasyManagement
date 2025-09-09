@@ -1,9 +1,8 @@
 using EasyMN.Shared.Dtos;
-using Shared.Dtos;
-using Shared.Dtos.Report;
+using EasyMN.Shared.Dtos.Report;
 using System.ServiceModel;
 
-namespace Shared.IServices
+namespace EasyMN.Shared.IServices
 {
     [ServiceContract]
     public interface IReportGrpcService
@@ -12,6 +11,6 @@ namespace Shared.IServices
         Task<ResponseWrapper<DashboardStatsDto>> GetDashboardStatsAsync();
 
         [OperationContract]
-        Task<ResponseWrapper<ClassStatsDto>> GetClassStatsAsync(int classId);
+        Task<ResponseWrapper<ClassStatsDto>> GetClassStatsAsync(ClassStatsRequest classStatsRequest);
     }
 }
