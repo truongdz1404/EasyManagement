@@ -106,5 +106,10 @@ namespace Repositories.Impliment
             return await Task.FromResult(_session.Query<ClassRoom>()
                                             .FirstOrDefault(c => c.ClassCode == code));
         }
+
+        public Task<int> CountAllAsync()
+        {
+            return Task.FromResult(_session.Query<ClassRoom>().Count());
+        }
     }
 }

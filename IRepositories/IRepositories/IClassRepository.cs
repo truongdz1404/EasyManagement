@@ -18,5 +18,7 @@ namespace Repositories.IRepositories
         Task<int> AddAsync(ClassRoom classRoom);
         Task<bool> UpdateAsync(ClassRoom classRoom);
         Task<bool> DeleteAsync(ClassRoom classRoom);
+        Task<int> CountAllAsync();
+
     }
 }

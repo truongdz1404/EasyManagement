@@ -13,7 +13,7 @@ namespace Repositories.Impliment
 {
     public class StudentRepository : IStudentRepository
     {
-        
+
         private readonly ISession _session;
         public StudentRepository(ISession session)
         {
@@ -100,5 +100,17 @@ namespace Repositories.Impliment
             tx.Commit();
             return Task.FromResult(true);
         }
+
+        public Task<int> CountAllAsync()
+        {
+            return Task.FromResult(_session.Query<Student>().Count());
+        }
+
+        public Task<int> CountByClassAsync(int classId)
+        {
+            return Task.FromResult(_session.Query<Student>()
+                                         .Count(s => s.ClassRoom.Id == classId));
+        }
     }
+
 }

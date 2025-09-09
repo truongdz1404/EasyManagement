@@ -16,5 +16,7 @@ namespace Repositories.IRepositories
         Task<int> AddAsync(Teacher teacher);
         Task<bool> UpdateAsync(Teacher teacher);
         Task<bool> DeleteAsync(Teacher teacher);
+        Task<int> CountAllAsync();
+
     }
 }

@@ -26,6 +26,11 @@ namespace Repositories.Impliment
             return Task.FromResult(id);
         }
 
+        public Task<int> CountAllAsync()
+        {
+            return Task.FromResult(_session.Query<Teacher>().Count());
+        }
+
         public Task<bool> DeleteAsync(Teacher teacher)
         {
             var tx = _session.BeginTransaction();

@@ -19,5 +19,7 @@ namespace Repositories.IRepositories
         Task<bool> DeleteAsync(int id);
         Task<bool> DeleteAsync(Student student);
         Task<bool> ExistsAsync(string studentCode);
+        Task<int> CountAllAsync();
+        Task<int> CountByClassAsync(int classId);
     }
 }
