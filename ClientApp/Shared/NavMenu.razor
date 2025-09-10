@@ -1,6 +1,7 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using AntDesign
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">ClientApp</a>
+        <a class="navbar-brand" href="">Student Manager</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -11,15 +12,16 @@
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="students" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Students    
+                <Icon Type="user" Theme="Outline" class="me-2"/> Students
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="reports">
-                <span class="oi oi-plus" aria-hidden="true"></span> Reports
+                <Icon Type="dashboard" Theme="Outline" class="me-2" /> Reports
             </NavLink>
         </div>
     </nav>
+
 </div>
 
 @code {
