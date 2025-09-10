@@ -48,25 +48,11 @@ namespace ClientApp.Pages
 
         private async Task LoadClassStats()
         {
-            var classResponse = await ClassGrpcService.GetAllClassRoomsAsync(new());
-            if (!string.IsNullOrEmpty(classResponse.Message) && classResponse.Data != null)
-            {
-                foreach (var classroom in classResponse.Data.Items)
-                {
-                    var statsResponse = await ReportGrpcService.GetClassStatsAsync(new EasyMN.Shared.Dtos.Report.ClassStatsRequest
-                    {
-                        ClassId
-                    = classroom.Id
-                    });
-                    if (!string.IsNullOrEmpty(statsResponse.Message) && statsResponse.Data != null)
-                    {
-                        classStats.Add(statsResponse.Data);
-                    }
-                }
-
+            var response = await ReportGrpcService.GetAllClassStatsAsync();
+            classStats = response.Data ?? new List<ClassStatsDto>();
                 pieChartData = classStats.Select(c => new { type = c.ClassName, value = c.TotalStudents }).ToArray();
-                columnChartData = classStats.Select(c => new { type = c.ClassName, value = c.TotalStudents }).ToArray();
-            }
+            columnChartData = classStats.Select(c => new { type = c.ClassName, value = c.TotalStudents }).ToArray();
+
         }
     }
 }

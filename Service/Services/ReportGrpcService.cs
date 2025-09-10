@@ -29,17 +29,20 @@ namespace Service.Services
         {
             try
             {
-                var totalStudents = await _studentRepository.CountAllAsync();
+                var tasks = new[]
+                {
+                    _studentRepository.CountAllAsync(),
+                    _classRepository.CountAllAsync(),
+                    _teacherRepository.CountAllAsync()
+                };
 
-                var totalClasses = await _classRepository.CountAllAsync();
-
-                var totalTeachers = await _teacherRepository.CountAllAsync();
+                var results = await Task.WhenAll(tasks);
 
                 var stats = new DashboardStatsDto
                 {
-                    TotalStudents = totalStudents,
-                    TotalClasses = totalClasses,
-                    TotalTeachers = totalTeachers
+                    TotalStudents = results[0],
+                    TotalClasses = results[1],
+                    TotalTeachers = results[2]
                 };
 
                 return new ResponseWrapper<DashboardStatsDto>("Success", stats);
@@ -76,6 +79,33 @@ namespace Service.Services
             {
                 _logger.LogError(ex, "Error getting class stats for class {ClassId}", classStass);
                 return new ResponseWrapper<ClassStatsDto>($"Error getting class stats for class {classStass}", null);
+            }
+        }
+
+
+        public async Task<ResponseWrapper<List<ClassStatsDto>>> GetAllClassStatsAsync()
+        {
+            try
+            {
+                var classes = await _classRepository.GetAllAsyncs();
+                var tasks = classes.Items.Select(async classroom =>
+                {
+                    var totalStudents = await _studentRepository.CountByClassAsync(classroom.Id);
+                    return new ClassStatsDto
+                    {
+                        ClassId = classroom.Id,
+                        ClassName = classroom.ClassName,
+                        TotalStudents = totalStudents
+                    };
+                });
+
+                var stats = await Task.WhenAll(tasks);
+                return new ResponseWrapper<List<ClassStatsDto>>("Success", stats.ToList());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all class stats");
+                return new ResponseWrapper<List<ClassStatsDto>>("Error getting all class stats", null);
             }
         }
     }

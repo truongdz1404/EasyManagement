@@ -1,4 +1,5 @@
-﻿using EasyMN.Shared.Entities;
+﻿using EasyMN.Shared.Dtos;
+using EasyMN.Shared.Entities;
 using EasyMN.Shared.Models;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Repositories.IRepositories
 {
     public interface IStudentRepository
     {
-        Task<PagedResult<Student>> GetAllAsync(int pageNumber = 1, int pageSize = 10, string? keyword = null, bool? isSortByName = null);
+        Task<PagedResult<Student>> GetAllAsync(PagedRequest request);
         Task<Student?> GetByIdAsync(int id);
         Task<Student?> GetByCodeAsync(string code);
         Task<int> AddAsync(Student student);

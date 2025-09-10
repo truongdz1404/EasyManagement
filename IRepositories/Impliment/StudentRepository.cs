@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EasyMN.Shared.Dtos;
 namespace Repositories.Impliment
 
 {
@@ -35,30 +36,48 @@ namespace Repositories.Impliment
                                                            .Any(s => s.StudentCode == studentCode));
         }
 
-        public Task<PagedResult<Student>> GetAllAsync(int pageNumber = 1, int pageSize = 10, string? keyword = null, bool? isSortByName = null)
+        public Task<PagedResult<Student>> GetAllAsync(PagedRequest request)
         {
             var query = _session.Query<Student>();
 
-            if (!string.IsNullOrEmpty(keyword))
+            if (!string.IsNullOrEmpty(request.Keyword))
             {
-                query = query.Where(s => s.Name.Contains(keyword));
+                query = query.Where(s => s.Name.Contains(request.Keyword) || s.StudentCode.Contains(request.Keyword));
             }
-            if (isSortByName.HasValue && isSortByName.Value)
+
+            if (!string.IsNullOrEmpty(request.SortField))
             {
-                query = query.OrderBy(s => s.Name);
+                Console.WriteLine($"Repository - Sorting by: {request.SortField}, Ascending: {request.SortAscending}");
+                switch (request.SortField)
+                {
+                    case "StudentCode":
+                        query = request.SortAscending == true ?
+                            query.OrderBy(s => s.StudentCode) :
+                            query.OrderByDescending(s => s.StudentCode);
+                        break;
+                    case "Name":
+                        query = request.SortAscending == true ?
+                            query.OrderBy(s => s.Name) :
+                            query.OrderByDescending(s => s.Name);
+                        break;
+                    default:
+                        Console.WriteLine($"Unhandled sort field: {request.SortField}");
+                        break;
+                }
             }
 
             var totalRecords = query.Count();
-            var students = query.Skip((pageNumber - 1) * pageSize)
-                                .Take(pageSize)
+            var students = query.Skip((request.PageNumber - 1) * request.PageSize)
+                                .Take(request.PageSize)
+
                                 .ToList();
 
             var pagedResult = new PagedResult<Student>
             {
                 Items = students,
                 TotalItems = totalRecords,
-                PageNumber = pageNumber,
-                PageSize = pageSize
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize
             };
 
             return Task.FromResult(pagedResult);

@@ -12,5 +12,8 @@ namespace EasyMN.Shared.IServices
 
         [OperationContract]
         Task<ResponseWrapper<ClassStatsDto>> GetClassStatsAsync(ClassStatsRequest classStatsRequest);
+        [OperationContract]
+        Task<ResponseWrapper<List<ClassStatsDto>>> GetAllClassStatsAsync();
+
     }
 }

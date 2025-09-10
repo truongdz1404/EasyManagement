@@ -6,6 +6,7 @@ using EasyMN.Shared.Dtos.ClassRoom;
 using EasyMN.Shared.Dtos.Student;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using AntDesign;
 
 namespace ClientApp.Pages
 {
@@ -15,68 +16,77 @@ namespace ClientApp.Pages
         private List<ClassRoomDto> classrooms = new();
         private string searchText = "";
         private bool showDialog = false;
-        private bool isLoading = true;
+        private bool isInitialLoading = true;
         private bool isSaving = false;
         private string errorMessage = "";
         private StudentDto currentStudent = new();
 
-        // Pagination
         private int pageSize = 5;
         private int currentPage = 1;
         private int totalItems = 0;
-        private int totalPages => totalItems > 0 ? (int)Math.Ceiling(totalItems / (double)pageSize) : 1;
-        private int startPage => Math.Max(1, currentPage - 2);
-        private int endPage => Math.Min(totalPages, startPage + 4);
+        private string? currentSortField;
+        private bool? currentSortAscending;
 
         protected override async Task OnInitializedAsync()
         {
             try
             {
+                isInitialLoading = true;
+                errorMessage = "";
+
                 await LoadClassrooms();
-                await LoadData(1);
+                await LoadDataInternal(1);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error initializing: {ex.Message}");
                 errorMessage = $"Failed to initialize: {ex.Message}";
             }
-        }
-        private int SelectedClassRoomId
-        {
-            get => currentStudent.ClassRoomId;
-            set
+            finally
             {
-                currentStudent.ClassRoomId = value;
-                Console.WriteLine($"ClassRoomId set to: {value}"); // Debug
+                isInitialLoading = false;
+                StateHasChanged();
             }
         }
-        private async Task LoadData(int page)
+
+
+        private async Task HandleTableChange(AntDesign.TableModels.QueryModel<StudentDto> queryModel)
         {
             try
             {
-                isLoading = true;
-                errorMessage = "";
-                await InvokeAsync(StateHasChanged); // Force UI update
+                currentPage = queryModel.PageIndex;
+                pageSize = queryModel.PageSize;
 
-                currentPage = page;
-                var response = await StudentGrpcService.GetAllStudentsAsync(new EasyMN.Shared.Dtos.PagedRequest
+                if (queryModel.SortModel != null && queryModel.SortModel.Any())
                 {
-                    PageNumber = page,
-                    PageSize = pageSize,
-                    Keyword = searchText?.Trim() ?? ""
-                });
-
-                if (response?.Data != null)
-                {
-                    students = response.Data.Items?.ToList() ?? new List<StudentDto>();
-                    totalItems = response.Data.TotalItems;
+                    var sortModel = queryModel.SortModel.First();
+                    currentSortField = sortModel.FieldName?.Split('.').LastOrDefault();
+                    currentSortAscending = sortModel.Sort == "ascend";
+                    Console.WriteLine($"Sort Field: {currentSortField}, Sort Ascending: {currentSortAscending}, Original Field: {sortModel.FieldName}");
                 }
                 else
                 {
-                    students = new List<StudentDto>();
-                    totalItems = 0;
-                    errorMessage = response?.Message ?? "Failed to load students";
+                    currentSortField = null;
+                    currentSortAscending = null;
                 }
+
+                await LoadDataInternal(currentPage);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error changing page: {ex.Message}");
+                errorMessage = $"Error changing page: {ex.Message}";
+                StateHasChanged();
+            }
+        }
+
+        // Chỉ dùng cho search và các thao tác cần loading manual
+        private async Task LoadDataWithLoading(int page)
+        {
+            try
+            {
+                errorMessage = "";
+                await LoadDataInternal(page);
             }
             catch (Exception ex)
             {
@@ -84,11 +94,34 @@ namespace ClientApp.Pages
                 students = new List<StudentDto>();
                 totalItems = 0;
                 errorMessage = $"Error loading data: {ex.Message}";
+                StateHasChanged();
             }
-            finally
+        }
+
+        private async Task LoadDataInternal(int page)
+        {
+            var request = new EasyMN.Shared.Dtos.PagedRequest
             {
-                isLoading = false;
-                await InvokeAsync(StateHasChanged); // Force UI update
+                PageNumber = page,
+                PageSize = pageSize,
+                Keyword = searchText?.Trim() ?? "",
+                SortField = currentSortField,
+                SortAscending = currentSortAscending
+            };
+            Console.WriteLine($"Sending request - Sort Field: {request.SortField}, Sort Ascending: {request.SortAscending}");
+            var response = await StudentGrpcService.GetAllStudentsAsync(request);
+
+            if (response?.Data != null)
+            {
+                students = response.Data.Items?.ToList() ?? new List<StudentDto>();
+                totalItems = response.Data.TotalItems;
+                currentPage = page;
+            }
+            else
+            {
+                students = new List<StudentDto>();
+                totalItems = 0;
+                errorMessage = response?.Message ?? "Failed to load students";
             }
         }
 
@@ -116,25 +149,32 @@ namespace ClientApp.Pages
 
         private async Task HandleSearchClick()
         {
-            if (!isLoading)
+            try
             {
-                await LoadData(1);
+                currentPage = 1;
+                await LoadDataWithLoading(1);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error searching: {ex.Message}");
+                errorMessage = $"Error searching: {ex.Message}";
             }
         }
 
         private async Task HandleSearchKeypress(KeyboardEventArgs e)
         {
-            if (e.Key == "Enter" && !isLoading)
+            try
             {
-                await LoadData(1);
+                if (e.Key == "Enter")
+                {
+                    currentPage = 1;
+                    await LoadDataWithLoading(1);
+                }
             }
-        }
-
-        private async Task GoToPage(int page)
-        {
-            if (page >= 1 && page <= totalPages && page != currentPage && !isLoading)
+            catch (Exception ex)
             {
-                await LoadData(page);
+                Console.WriteLine($"Error searching: {ex.Message}");
+                errorMessage = $"Error searching: {ex.Message}";
             }
         }
 
@@ -144,7 +184,7 @@ namespace ClientApp.Pages
             currentStudent = new StudentDto
             {
                 Dob = DateTime.Today,
-                ClassRoomId = 0 // Đặt default, user sẽ chọn
+                ClassRoomId = 0
             };
             showDialog = true;
             StateHasChanged();
@@ -191,6 +231,8 @@ namespace ClientApp.Pages
 
             try
             {
+                if (isSaving) return;
+
                 isSaving = true;
                 errorMessage = "";
                 StateHasChanged();
@@ -210,7 +252,9 @@ namespace ClientApp.Pages
                     if (response.Data > 0)
                     {
                         CloseDialog();
-                        await LoadData(currentPage);
+                        currentPage = 1;
+                        await LoadDataWithLoading(1);
+                        StateHasChanged();
                     }
                     else
                     {
@@ -232,7 +276,8 @@ namespace ClientApp.Pages
                     if (response.Data)
                     {
                         CloseDialog();
-                        await LoadData(currentPage);
+                        await LoadDataWithLoading(currentPage);
+                        StateHasChanged();
                     }
                     else
                     {
@@ -254,24 +299,24 @@ namespace ClientApp.Pages
 
         private async Task DeleteStudent(int studentId)
         {
-            if (isLoading) return;
-
             try
             {
                 var response = await StudentGrpcService.DeleteStudentAsync(new StudentRequest { Id = studentId });
                 if (response.Data)
                 {
-                    await LoadData(currentPage);
+                    await LoadDataWithLoading(currentPage);
                 }
                 else
                 {
                     errorMessage = response.Message ?? "Failed to delete student";
+                    StateHasChanged();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error deleting student: {ex.Message}");
                 errorMessage = $"Error deleting student: {ex.Message}";
+                StateHasChanged();
             }
         }
     }

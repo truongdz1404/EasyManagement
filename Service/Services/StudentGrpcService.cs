@@ -20,7 +20,7 @@ namespace Service.Services
 
         public async Task<ResponseWrapper<PagedResult<StudentDto>>> GetAllStudentsAsync(PagedRequest request)
         {
-            var result = await _studentRepository.GetAllAsync(request.PageNumber, request.PageSize, request.Keyword, request.SortByName);
+            var result = await _studentRepository.GetAllAsync(request);
             return new ResponseWrapper<PagedResult<StudentDto>>("Success", new PagedResult<StudentDto>
             {
                 Items = result.Items.Select(s => new StudentDto
@@ -30,7 +30,8 @@ namespace Service.Services
                     Name = s.Name,
                     Dob = s.Dob,
                     Address = s.Address,
-                    ClassRoomName = s.ClassRoom?.ClassName ?? string.Empty
+                    ClassRoomName = s.ClassRoom?.ClassName ?? string.Empty,
+                    ClassRoomId = s.ClassRoom?.Id ?? 0
                 }).ToList(),
                 TotalItems = result.TotalItems,
                 PageNumber = result.PageNumber,
@@ -120,7 +121,7 @@ namespace Service.Services
                 student.Name = request.Name;
                 student.Dob = request.Dob;
                 student.Address = request.Address;
-
+                student.ClassRoom = await _classRepository.GetByIdAsync(request.ClassRoomId);
                 var success = await _studentRepository.UpdateAsync(student);
                 return new ResponseWrapper<bool>(success ? "Updated successfully" : "Update failed", success);
             }
@@ -153,7 +154,8 @@ namespace Service.Services
                 Name = s.Name,
                 Dob = s.Dob,
                 Address = s.Address,
-                ClassRoomName = s.ClassRoom?.ClassName ?? string.Empty
+                ClassRoomName = s.ClassRoom?.ClassName ?? string.Empty,
+                ClassRoomId = s.ClassRoom?.Id ?? 0
             };
         }
     }

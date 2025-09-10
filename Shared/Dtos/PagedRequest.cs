@@ -17,9 +17,12 @@ namespace EasyMN.Shared.Dtos
         public int PageSize { get; set; } = 10;
 
         [DataMember(Order = 3)]
-        public string? Keyword { get; set; } 
+        public string? Keyword { get; set; }
 
         [DataMember(Order = 4)]
-        public bool? SortByName { get; set; } 
+        public string? SortField { get; set; }
+
+        [DataMember(Order = 5)]
+        public bool? SortAscending { get; set; }
     }
 }
