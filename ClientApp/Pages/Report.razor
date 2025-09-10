@@ -7,69 +7,74 @@
 @inject EasyMN.Shared.IServices.IClassGrpcService ClassGrpcService
 
 <PageTitle>Dashboard</PageTitle>
+
 @if (stats != null)
 {
-    <div class="container-fluid">
+    <div class="container-fluid py-4 bg-light">
         <div class="row mb-4">
-            <div class="col-md-4">
-                <Card>
-
-                    <Body>
-                        <div class="text-center">
-                            <h3>Total Teachers</h3>
-                            <h2>@(stats?.TotalTeachers ?? 0)</h2>
-                        </div>
-                    </Body>
-                </Card>
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm rounded-3 h-100 border-0 hover-card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Total Teachers</h6>
+                        <h2 class="fw-bold text-primary">@(stats?.TotalTeachers ?? 0)</h2>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4">
-                <Card>
 
-                    <Body>
-                        <div class="text-center">
-                            <h3>Total Classes</h3>
-                            <h2>@(stats?.TotalClasses ?? 0)</h2>
-                        </div>
-                    </Body>
-                </Card>
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm rounded-3 h-100 border-0 hover-card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Total Classes</h6>
+                        <h2 class="fw-bold text-success">@(stats?.TotalClasses ?? 0)</h2>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4">
-                <Card>
 
-                    <Body>
-                        <div class="text-center">
-                            <h3>Total Students</h3>
-                            <h2>@(stats?.TotalStudents ?? 0)</h2>
-                        </div>
-                    </Body>
-                </Card>
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm rounded-3 h-100 border-0 hover-card">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted">Total Students</h6>
+                        <h2 class="fw-bold text-danger">@(stats?.TotalStudents ?? 0)</h2>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-md-6">
-                <Card Title="Student Distribution">
-                    @if (classStats != null && classStats.Any())
-                    {
-                        <Pie Data="pieChartData" Config="pieConfig" />
-                    }
-                    else
-                    {
-                        <Spin />
-                    }
-                </Card>
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm rounded-3 border-0">
+                    <div class="card-header bg-white fw-bold">Student Distribution</div>
+                    <div class="card-body">
+                        @if (classStats != null && classStats.Any())
+                        {
+                            <Pie Data="pieChartData" Config="pieConfig" />
+                        }
+                        else
+                        {
+                            <div class="d-flex justify-content-center py-5">
+                                <Spin />
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
-            <div class="col-md-6">
-                <Card Title="Students per Class">
-                    @if (classStats != null && classStats.Any())
-                    {
-                        <AntDesign.Charts.Column Data="columnChartData" Config="columnConfig" />
-                    }
-                    else
-                    {
-                        <Spin />
-                    }
-                </Card>
+
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm rounded-3 border-0">
+                    <div class="card-header bg-white fw-bold">Students per Class</div>
+                    <div class="card-body">
+                        @if (classStats != null && classStats.Any())
+                        {
+                            <AntDesign.Charts.Column Data="columnChartData" Config="columnConfig" />
+                        }
+                        else
+                        {
+                            <div class="d-flex justify-content-center py-5">
+                                <Spin />
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -81,3 +86,12 @@ else
     </div>
 }
 
+<style>
+    .hover-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+</style>
